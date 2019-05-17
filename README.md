@@ -1,1 +1,311 @@
-# neo4j
+Graph Databases are used where relationships and navigating deep chain of relationships are more important than entities.
+
+In Graph Database we have “Index Free Adjacency”
+Adjacency means the nodes are located close to each other in the database i.e., the database will find related nodes without doing expensive scans of the disk.
+
+We can do this in Relational Database as well but every time you follow a relationship the database engine needs to lookup for the next node in the chain i.e., related row
+
+In Graph database Traversal of Relationships is far more efficient than Relational DB.
+
+
+The objects we store in Neo4j are nodes.
+The connection between Nodes are called Relationships.
+Nodes contain properties i.e., data 
+Relationships also can contain properties for additional information.
+Nodes are differentiated with Labels. 
+
+
+In neo4j nodes are within ()
+In neo4j query language is called as Cypher
+
+Listing all nodes in the database.
+MATCH (n) RETURN n
+here match is similar to select in rdbms
+and selecting the nodes we need to tell what we are going to do with those node here we are simply returning them
+
+
+Creating Nodes
+
+CREATE(:customer {name: “ABC Corp”})
+Here identifier is not used and label “customer” is used
+identifier is needed when we want to use that later for query
+*** Here identifier are temporary and can be used in the current query
+
+CREATE(c:customer {name: “ABC Corp”}) RETURN c
+Here we are executing 2 commands one for creating using CREATE statement and
+other command is RETURN to return the node we created.
+
+By Default neo4j will label the node with name property if it exists.
+name is special property.
+
+Creating Node:
+CREATE (identifier:label {property:value, property:value})
+Identifier are temporary variable which will be available with in a query.
+Nodes with same label will use same colour
+Identifier and  Label are optional
+values in the json can be string, integer and array
+*** values in json doesn’t accept another json. i.e., nested json is not allowed
+
+CREATE (emp1:person {name: “Sally”})
+CREATE (emp1 {name: “Sally”})
+CREATE (:person {name: “Sally”})
+CREATE ({name: “Sally”})
+CREATE (emp1:person {name: “Sally”, age: 27, workDays: [1,2,4,5]})
+
+Creating Relationship:
+CREATE (node1)-[identifier:type {property:value,property:value}]->(node2)
+CREATE (node1)<-[identifier:type {property:value,property:value}]-(node2)
+
+MATCH (emp1:person {name: “Sally”})
+MATCH (emp2:person {name: “James”})
+CREATE (emp1)-[:WORKS_WITH]->(emp2)
+
+
+
+Usecase:
+CREATE (corp:customer {name: "ABC Corporation"})
+CREATE (corp:customer {name: "DEF Limited"})
+
+CREATE (:website {name: "www.abc.com", software: "wordpress"})
+CREATE (:website {name: "www.abc.org", software: "spring MVC"})
+CREATE (:website {name: "www.def.com", software: "wordpress"})
+
+
+MATCH (corp:customer {name: “ABC Corporation”})
+MATCH (web:website {name:“www.abc.com”})
+CREATE (corp)-[:OWNS]->(web)
+
+MATCH (corp:customer {name: “ABC Corporation”})
+MATCH (web:website {name:“www.abc.org”})
+CREATE (corp)-[:OWNS]->(web)
+
+MATCH (corp:customer {name: “DEF Limited”})
+MATCH (web:website {name:“www.def.com”})
+CREATE (corp)-[:OWNS]->(web)
+
+
+Match:
+Match is like a select statement
+but for a match statement we should have return or update clause
+
+Returns all nodes
+MATCH (n) RETURN n
+
+Return can have
+RETURN n
+RETURN n.propertyName
+RETURN labels(n)
+RETURN id(n)
+
+RETURN n.name, labels(n)
+
+
+Usecase Data:
+MATCH (c1:customer {name:"ABC Corporation"})
+MATCH (c2:customer {name:"DEF Limited"})
+MATCH (w1:website {name:"www.abc.com"})
+MATCH (w2:website {name:"www.abc.org"})
+MATCH (w3:website {name:"www.def.com"})
+
+CREATE (c3:customer {name:"GHI University"})
+CREATE (w4:website {name:"www.ghi.edu",software:"wordpress"})
+CREATE (c3)-[:OWNS]->(w4)
+
+CREATE (c4:customer {name:"JKL Organization"})
+CREATE (w5:website {name:"www.jkl.org",software:"springMVC"})
+CREATE (c4)-[:OWNS]->(w5)
+
+CREATE (s1:server {name:"server 1"})
+CREATE (s2:server {name:"server 2"})
+
+CREATE (w1)-[:HOSTED_ON]->(s1)
+CREATE (w2)-[:HOSTED_ON]->(s1)
+CREATE (w3)-[:HOSTED_ON]->(s2)
+CREATE (w4)-[:HOSTED_ON]->(s2)
+CREATE (w5)-[:HOSTED_ON]->(s1)
+
+CREATE (e1:employee {name:"Sally"})
+CREATE (e2:employee {name:"James"})
+CREATE (e3:employee {name:"Louise"})
+CREATE (e4:employee {name:"David"})
+
+CREATE (e1)-[:MANAGES]->(w1)
+CREATE (e1)-[:MANAGES]->(w2)
+CREATE (e1)-[:MANAGES]->(w3)
+CREATE (e2)-[:MANAGES]->(w4)
+CREATE (e2)-[:MANAGES]->(w5)
+
+CREATE (e3)-[:SUPPORTS]->(s1)
+CREATE (e4)-[:SUPPORTS]->(s2);
+
+
+Returning Relationship:
+MATCH (n {name: "ABC Corporation"})-[r]->(m) RETURN type(r)
+
+Updating Node:
+MATCH (n {name: "ABC Corporation"}) SET n.country="USA" RETURN n
+MATCH (n {name: "ABC Corporation"}) REMOVE n.country RETURN n
+MATCH (n {name: "ABC Corporation"}) SET n:extraLabel RETURN n
+MATCH (n {name: "ABC Corporation"}) REMOVE n:extraLabel RETURN n
+
+Deleting Relationship:
+MATCH(n {name: "JKL Organization"}) -[r]->(m) DELETE r
+
+Creating Relationship
+MATCH (c4 {name:"JKL Organization"}) MATCH (w5 {name:"www.jkl.org"}) CREATE (c4)-[:OWNS]->(w5)
+
+
+Case Study:
+
+Return all employees who is a member of a group with ref A1
+MATCH (e:employee) -[r:MEMBER_OF]-> (g:group {ref: “A1”}) RETURN e
+
+(or)
+Below statement is also valid as there are is only relationship(MEMBER_OF) between employee and group so relationship can be optional and the ref “A1” is only there in a group we don’t need to specify group label.
+MATCH (e) -[]-> ({ref: ”A1”}) RETURN e
+
+(or)
+MATCH (e) —> ({ref: “A1”}) RETURN e
+
+(or)
+MATCH (e) — ({ref: “A1”}) RETURN e
+
+These reduced short graph cyphers are used for on demand queries only, if you are writing a program or a script it is better to write long handed cypher so that it will not break if anything is changed in future.
+
+Case Study:
+
+In Graph we have a id attribute that is automatically generated in Neo4j but when node is deleted then neo4j will reuse this id value so it is always safe to have a custom unique value for the node(which is ref in our case)
+
+To get all groups so that we will get the ref
+MATCH (g:group) RETURN g
+For Photography ref is A2
+
+To get all departments so that we will get ref
+MATCH (d:department) RETURN d
+For Management Department ref is MN
+
+
+MATCH (e) -[:WORKS_IN]-> (d {ref: "MN"}) MATCH (e) -[r:MEMBER_OF]-> (g {ref: "A2"}) RETURN r,d
+
+
+(or)
+MATCH (g {ref: "A2"}) <-[:MEMBER_OF]- (e) -[:WORKS_IN]-> (d {ref: "MN"}) RETURN e,d,g
+
+
+
+
+2. Who are each of these people managed by?
+MATCH (e) -[:WORKS_IN]-> (d {ref: "MN"}) MATCH (e) -[:MEMBER_OF]-> (g {ref: "A2"}) MATCH (e) -[r:MANAGED_BY]->(m:employee) RETURN g,r
+
+3. Are any of the managers in a group? if so which ones?
+MATCH (e) -[:WORKS_IN]-> (d {ref: "MN"}) MATCH (e) -[:MEMBER_OF]-> (g {ref: "A2"}) MATCH (e) -[r:MANAGED_BY]->(m:employee) MATCH (m) -[:MEMBER_OF]-> (g2:group) RETURN m,g2
+
+
+If we want to get nodes which are away from x hops then we can use Shortest Path function to do this, because our above cypher queries will return node with distance = 1
+
+
+Get all Nodes which are 2 hopes from Management node.
+MATCH (d:department {ref: "MN"}) -[*2]- (n) RETURN d,n
+
+Get all nodes which are 2 to 3 hops away from Managemnt node.
+MATCH (d:department {ref: "MN"}) -[*2..3]- (n) RETURN d,n
+
+
+Shortest Path:
+using shortest path function we can know the shortest path between two nodes.
+
+MATCH (one:group {name: "Cycling"}) MATCH (two:group {name: "Backgammon"}) MATCH p=shortestPath((one) -[*1..50]- (two)) RETURN p
+
+MATCH (one {name: "Administration"}) MATCH (two {name: "Customer Service"}) MATCH p=shortestPath((one) -[*1..50]- (two)) RETURN p
+
+MATCH (one {name: "Administration"}) MATCH (two {name: "Melanie Boyd"}) MATCH p=shortestPath((one) -[*1..50]- (two)) RETURN p
+
+** There can be multiple shortest path so to get all shortest paths we have to use below function.
+allShortestPaths
+
+MATCH (one {name: "Administration"}) MATCH (two {name: "Customer Service"}) MATCH p=allShortestPaths((one) -[*1..50]- (two)) RETURN p
+
+
+
+WHERE Keyword:
+
+MATCH (n)
+WHERE n.property = someValue
+
+MATCH (g:group)
+WHERE g.ref = “S2”
+(or)
+MATCH (g:group {ref: “S2”})
+
+
+Find all members of walking or photography groups whose first name begins with j
+
+MATCH (e:employee) -[r:MEMBER_OF]-> (g:group) WHERE e.name=~ "J.*" AND (g.ref="A2" OR g.ref="S2") RETURN r
+
+MATCH (e:employee) -[r:MEMBER_OF]-> (g:group) 
+WHERE e.name=~ "J.*" 
+AND (g.ref="A2" OR g.ref="S2") 
+RETURN r
+
+Here =~ is a pattern matcher
+
+
+(OR)
+
+MATCH (e:employee) -[r:MEMBER_OF]-> (g:group) WHERE e.name=~ "J.*" AND g.ref IN ["A2","S2"] RETURN r
+
+Here we used IN operator instead of OR.
+
+
+(OR)
+
+MATCH (e:employee) -[r:MEMBER_OF]-> (g:group) WHERE substring(e.name,0,1)="J" AND g.ref IN ["A2","S2"] RETURN r
+
+Here we used substring function.
+
+
+Aggregations:
+MATCH (e:employee {jobTitle: "Supervisor"}) RETURN count(e) 
+
+MATCH (e:employee) -[r:MEMBER_OF]-> (g:group) WHERE substring(e.name,0,1)="J" AND g.ref IN ["A2","S2"] RETURN g.name, count(e)
+
+MATCH (e:employee) -[r:MEMBER_OF]-> (g:group) RETURN g.name, count(e)
+
+
+Performance:
+In neo4j it will take a performance hit to find the first node because all nodes which are related to this node can be retrieved easily through references. So the first node(root node) will take time for retrieval.
+means each node will have list of pointers to other nodes and it is very cheap to retrieve any node which is related to that node. This is called “Index Free Adjacency” because neo4j need not to maintain to retrieve nodes.
+
+
+EXPLAIN - It will not run the query but will show you the algorithms and estimated scans that is needed for the query.
+
+PROFILE - It will run the query and show the execution stats.
+
+EXPLAIN MATCH (d {name: "Management"}) -- (e) RETURN d,e
+
+PROFILE MATCH (d {name: "Management"}) -- (e) RETURN d,e
+for the above query Neo will do a AllNodes Scan to find the root node(i.e., Management node), If there are large number of nodes then this query is not efficient.
+
+PROFILE MATCH (d:department {name: "Management"}) -- (e) RETURN d,e
+Above Query will do a IndexByLabel Scan means it will directly go to that label and scan all nodes in that label. It is a better query.
+** In Neo indexes are automatically created for labels. So it is recommended to use labels when executing queries.
+
+Since finding the root node will take time we can create index to get the root node.
+** indexes can be created on nodes which are having Labels.
+
+Suppose if you have have lot of nodes in a label then we can index attributes in that label, and neo indexes are useful for that.
+
+CREATE INDEX ON :label(property1, property2)
+
+CREATE INDEX ON :department(name)
+
+PROFILE MATCH (d:department {name: "Management"}) -- (e) RETURN d,e
+Now after creating index neo will find the root node in a constant time 
+Algorithm used is NodeIndexSeek.
+
+Labels are mandatory to create index.
+
+Inserts and updates will be slow as it needs to update index as well.
+
+
+*** In Java code All Neo operations even Read also should be in a transaction because when we fetch nodes there is chance to update this nodes.
