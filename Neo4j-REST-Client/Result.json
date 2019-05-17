@@ -1,0 +1,100 @@
+{
+	"results": [
+		{
+			"columns": [
+				"n"
+			],
+			"data": [
+				{
+					"row": [
+						{
+							"ref": "PR",
+							"name": "Production"
+						}
+					]
+				},
+				{
+					"row": [
+						{
+							"ref": "CS",
+							"name": "Customer Service"
+						}
+					]
+				},
+				{
+					"row": [
+						{
+							"ref": "HR",
+							"name": "Human Resources"
+						}
+					]
+				},
+				{
+					"row": [
+						{
+							"ref": "FN",
+							"name": "Finance"
+						}
+					]
+				},
+				{
+					"row": [
+						{
+							"ref": "LG",
+							"name": "Legal and General"
+						}
+					]
+				},
+				{
+					"row": [
+						{
+							"ref": "PL",
+							"name": "Planning"
+						}
+					]
+				},
+				{
+					"row": [
+						{
+							"ref": "MN",
+							"name": "Management"
+						}
+					]
+				},
+				{
+					"row": [
+						{
+							"ref": "FM",
+							"name": "Facilities Management"
+						}
+					]
+				},
+				{
+					"row": [
+						{
+							"ref": "AD",
+							"name": "Administration"
+						}
+					]
+				},
+				{
+					"row": [
+						{
+							"ref": "DD",
+							"name": "Dispatch and Delivery"
+						}
+					]
+				},
+				{
+					"row": [
+						{
+							"ref": "PY",
+							"name": "Payroll"
+						}
+					]
+				}
+			]
+		}
+	],
+	"errors": []
+}
