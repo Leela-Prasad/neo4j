@@ -1,0 +1,53 @@
+NoSQL Databases are not replacement for RDBMS.
+
+SQL is good at ACID
+A - Atomic
+A group of statements executed in a transaction are atomic means either all statements will execute or none.
+C - Consistent
+Once any write transaction is committed then any subsequent reads will return updated data.
+I - Isolation
+Once the transaction is executing any other transactions will not interfer with the running transactions, means any transaction will not see stale data that is updated by other transaction.
+This is achieved by applying locks on the table.
+Default Transaction mode in RDBMS is Read Committed.
+D - Durable
+When a transaction committed then the data is definitely written to disk any database restart/crash will not loose data.
+
+Neo4j is hard to shard as it is difficult to put some nodes in one machine and some nodes in another machine and performance will be impacted.
+Neo4j enterprise has replication.
+Because of not having sharding capability Neo4j supports ACID properties.
+Neo4j is not primarily designed for Scalability.
+Neo4j is useful when you want to work with deep relationships.
+
+** MongoDB doesn’t have transactions and this as per design to achieve horizontal scalability i.e., sharing
+ACID is not supported in mongo.
+
+Writing a single document in mongo is an Atomic operation, but multiple documents documents is not atomic. This is achieved by temporarily locking the database.
+
+Mongo Write by default is not durable because the write operations will happen after a specific delay and this can configured to Journal so that it is durable.
+
+For Good Performance data should fit into Working Set i.e., RAM
+
+
+In Redis Transactions are not Atmoic and we see if one statement in a transaction fails then it will go and execute rest of the transactions.
+
+But we can have Isolation in Redis 
+
+In Redis Durability can be achieved
+By default redis will write the data to disk at periodic intervals
+but we can configure this one to be fully durable.
+AOF(Append only File) can sync the database to disk after every write operation.
+
+
+In order to achieve high performance through horizontally scalability then we need make compromises on some of the ACID properties and this is captured in a term called BASE
+B - Basic
+A - Availability
+S - Soft State
+E - Eventually Consistency
+
+Some times we have to compromise on Availability in order for the data to be consistent.
+This is seen in Mongo when the primary is done then entire database is not available as there is election for the new primary and the data is consistent.
+
+Soft State - This means we need compromise on durability in order to get performance.
+This we have seen in Mongo and Redis as there default configuration even though those can be tweaked to get full durability, but at a cost of performance.
+
+Eventually Consistency - Some Databases are designed for Full Availability at cost of data consistency, means the system will be fully available but all the instances may not have up to data.
